@@ -4,5 +4,5 @@
 
 body {
   @apply bg-gray-900 text-zinc-100;
-  -webkit-font-smoothing: ;
+  -webkit-font-smoothing: antialiased;
 }
