@@ -1,16 +1,8 @@
 import { gql, useMutation } from "@apollo/client";
-import { useState, FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCreateSubscriberMutation } from "../../graphql/generated";
 import { Logo } from "../Logo";
-
-const  CREATE_SUBSCRIBE_MUTATION = gql`
-  mutation CreateSubscriber ($name: String!, $email: String!) {
-    createSubscriber(data: {name: $name, email: $email}) {
-      id
-    }
-  }
-
-`;
 
 export function Subscribe() {
   const navigate = useNavigate()
@@ -18,20 +10,21 @@ export function Subscribe() {
   const [name, setName]= useState('');
   const [email, setEmail]= useState('');
 
+  const [createSubscriber, { loading }] = useCreateSubscriberMutation()
 
-  const [createSubscriber] = useMutation(CREATE_SUBSCRIBE_MUTATION);
-
-  async function handleSubscribe(event: FormEvent) {
+  function handleSubscribe(event: FormEvent) {
     event.preventDefault()
 
-    await createSubscriber({
+    createSubscriber({
       variables: {
         name, 
         email
       }
     })
-
-    
+      .then(() => navigate("/event"))    
+      .catch((error) => {
+        throw new Error("Error while subscribe: ", error);
+      })
   }
 
   return (
@@ -67,7 +60,8 @@ export function Subscribe() {
             <button
               type="submit"
               onClick={handleSubscribe}
-              className="bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700 transition-colors"
+              disabled={loading}
+              className="bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
               >Garantir minha vaga</button>
           </form>
         </div>
